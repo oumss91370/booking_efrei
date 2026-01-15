@@ -55,7 +55,7 @@ button.danger{background:var(--danger); border-color:var(--danger); color:white}
 
 /* Date UX */
 .date-bar{display:flex; gap:8px; flex-wrap:wrap; align-items:center; background:#f8fafc; border:1px solid var(--border); border-radius:10px; padding:10px}
-.date-bar .input{padding:8px 10px; border:1px solid var(--border); border-radius:8px}
-.nudge{padding:8px 10px; border:1px solid var(--border); background:white; border-radius:8px; cursor:pointer}
+.date-bar .input{padding:8px 10px; border:1px solid var(--border); border-radius:8px; background:white; color:var(--text)}
+.nudge{padding:8px 10px; border:1px solid var(--border); background:white; color:var(--text); border-radius:8px; cursor:pointer}
 .nudge:hover{background:#f1f5f9}
 .grow{flex:1 1 auto; min-width:220px}

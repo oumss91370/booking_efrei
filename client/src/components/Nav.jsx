@@ -15,7 +15,7 @@ export default function Nav(){
         {user?.email ? (
           <>
             <span>{user.email}</span>
-            <button onClick={logout}>Déconnexion</button>
+            <button className="secondary" onClick={logout}>Déconnexion</button>
           </>
         ) : (
           <span>Non connecté</span>

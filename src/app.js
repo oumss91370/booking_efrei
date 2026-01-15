@@ -12,6 +12,13 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+// Generic handler for OPTIONS preflight
+app.use((req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+  next();
+});
 
 // Serve static frontend
 app.use(express.static(path.resolve(__dirname, '../public')));
@@ -21,12 +28,17 @@ app.use('/api/auth', authRoutes);
 app.use('/api/rooms', roomRoutes);
 app.use('/api/bookings', bookingRoutes);
 
-// Error handling
-app.use(errorHandler);
-
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
 });
+
+// Explicit HEAD handler for health
+app.head('/health', (req, res) => {
+  res.status(200).end();
+});
+
+// Error handling (after routes)
+app.use(errorHandler);
 
 module.exports = app;
