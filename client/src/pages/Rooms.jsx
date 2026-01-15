@@ -10,6 +10,7 @@ export default function Rooms(){
   const [end, setEnd] = useState('')
   const [form, setForm] = useState({ name:'', capacity:1, amenities:'' })
   const [msg, setMsg] = useState('')
+  const [duration, setDuration] = useState(60)
   // Filters / sorting
   const [q, setQ] = useState('')
   const [capMin, setCapMin] = useState('')
@@ -18,11 +19,42 @@ export default function Rooms(){
   const [sort, setSort] = useState('name_asc')
 
   useEffect(()=>{
-    const now = new Date()
-    const s = new Date(now.getTime()+60*60*1000).toISOString().slice(0,16)
-    const e = new Date(now.getTime()+2*60*60*1000).toISOString().slice(0,16)
-    setStart(s); setEnd(e)
+    const pad = (n) => String(n).padStart(2,'0')
+    const toLocalInput = (d) => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+    const sD = new Date(); sD.setMinutes(sD.getMinutes()+60)
+    const eD = new Date(); eD.setMinutes(eD.getMinutes()+120)
+    setStart(toLocalInput(sD)); setEnd(toLocalInput(eD))
   },[])
+
+  // Date helpers & handlers
+  const pad = (n) => String(n).padStart(2,'0')
+  const toLocalInput = (d) => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+  const addMinutes = (localStr, minutes) => {
+    const d = new Date(localStr)
+    if (isNaN(d.getTime())) return localStr
+    d.setMinutes(d.getMinutes() + minutes)
+    return toLocalInput(d)
+  }
+  const ensureOrder = (s, e) => {
+    const sd = new Date(s).getTime(); const ed = new Date(e).getTime()
+    if (isNaN(sd) || isNaN(ed)) return [s,e]
+    if (ed <= sd) return [s, addMinutes(s, duration)]
+    return [s,e]
+  }
+  const onStartChange = (v) => {
+    const newStart = v
+    const newEnd = addMinutes(v, duration)
+    const [s2, e2] = ensureOrder(newStart, newEnd)
+    setStart(s2); setEnd(e2)
+  }
+  const onEndChange = (v) => {
+    const [s2, e2] = ensureOrder(start, v)
+    setStart(s2); setEnd(e2)
+  }
+  const changeDuration = (min) => {
+    setDuration(min)
+    if (start) setEnd(addMinutes(start, min))
+  }
 
   const listAll = async ()=>{
     const j = await api.get('/api/rooms')
@@ -70,12 +102,29 @@ export default function Rooms(){
   return (
     <div className="page-rooms">
       <div className="card">
-        <h2>Parcourir</h2>
+        <div className="section-head">
+          <h2>Parcourir</h2>
+          <span className="section-desc">Cherchez, filtrez et triez les salles</span>
+        </div>
         <div className="row" style={{marginBottom:8}}>
           <button onClick={listAll}>Toutes les salles</button>
           <button onClick={listAvailable}>Salles disponibles</button>
-          <input type="datetime-local" value={start} onChange={e=>setStart(e.target.value)} />
-          <input type="datetime-local" value={end} onChange={e=>setEnd(e.target.value)} />
+        </div>
+        <div className="date-bar" style={{marginBottom:8}}>
+          <button className="nudge" onClick={()=>onStartChange(addMinutes(start, -15))}>-15m</button>
+          <input className="input grow" type="datetime-local" value={start} onChange={e=>onStartChange(e.target.value)} />
+          <button className="nudge" onClick={()=>onStartChange(addMinutes(start, 15))}>+15m</button>
+          <span className="muted">durée</span>
+          <select className="input" value={duration} onChange={e=>changeDuration(Number(e.target.value))}>
+            <option value={30}>30m</option>
+            <option value={60}>1h</option>
+            <option value={90}>1h30</option>
+            <option value={120}>2h</option>
+          </select>
+          <button className="nudge" onClick={()=>onEndChange(addMinutes(end, -15))}>-15m</button>
+          <input className="input grow" type="datetime-local" value={end} onChange={e=>onEndChange(e.target.value)} />
+          <button className="nudge" onClick={()=>onEndChange(addMinutes(end, 15))}>+15m</button>
+          <button className="secondary" onClick={listAvailable}>Voir disponibles</button>
           <button className="secondary" onClick={presetNextHour}>Prochaine heure</button>
           <button className="secondary" onClick={presetMorning}>Matinée</button>
           <button className="secondary" onClick={presetAfternoon}>Après-midi</button>
@@ -145,7 +194,10 @@ export default function Rooms(){
       </div>
 
       <div className="card">
-        <h2>Créer une salle (auth requis)</h2>
+        <div className="section-head">
+          <h2>Créer une salle (auth requis)</h2>
+          <span className="section-desc">Ajoutez une salle avec capacité et équipements</span>
+        </div>
         <form onSubmit={createRoom} className="form">
           <input placeholder="Nom" value={form.name} onChange={e=>setForm(v=>({...v,name:e.target.value}))} required />
           <input type="number" min="1" placeholder="Capacité" value={form.capacity} onChange={e=>setForm(v=>({...v,capacity:e.target.value}))} required />

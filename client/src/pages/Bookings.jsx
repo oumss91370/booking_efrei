@@ -10,18 +10,56 @@ export default function Bookings(){
   const [msg, setMsg] = useState('')
   const [mine, setMine] = useState([])
   const [loading, setLoading] = useState(false)
+  const [duration, setDuration] = useState(60) // minutes
 
   useEffect(()=>{
-    const now = new Date()
-    const s = new Date(now.getTime()+60*60*1000).toISOString().slice(0,16)
-    const e = new Date(now.getTime()+2*60*60*1000).toISOString().slice(0,16)
-    setStart(s); setEnd(e)
+    const pad = (n) => String(n).padStart(2,'0')
+    const toLocalInput = (d) => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+    const startD = new Date(); startD.setMinutes(startD.getMinutes()+60)
+    const endD = new Date(); endD.setMinutes(endD.getMinutes()+120)
+    setStart(toLocalInput(startD)); setEnd(toLocalInput(endD))
     const pre = localStorage.getItem('selected_room_id')
     if (pre) {
       setRoomId(pre)
       localStorage.removeItem('selected_room_id')
     }
   },[])
+
+  // helpers
+  const toISO = (localStr) => new Date(localStr).toISOString()
+  const pad = (n) => String(n).padStart(2,'0')
+  const toLocalInput = (d) => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+  const addMinutes = (localStr, minutes) => {
+    const d = new Date(localStr)
+    if (isNaN(d.getTime())) return localStr
+    d.setMinutes(d.getMinutes() + minutes)
+    return toLocalInput(d)
+  }
+  const ensureOrder = (s, e, keepDuration=true) => {
+    const sd = new Date(s).getTime()
+    const ed = new Date(e).getTime()
+    if (isNaN(sd) || isNaN(ed)) return [s, e]
+    if (ed <= sd) {
+      const next = keepDuration ? addMinutes(s, duration) : addMinutes(s, 30)
+      return [s, next]
+    }
+    return [s, e]
+  }
+
+  const onStartChange = (v) => {
+    const newStart = v
+    const newEnd = addMinutes(v, duration)
+    const [s2, e2] = ensureOrder(newStart, newEnd)
+    setStart(s2); setEnd(e2)
+  }
+  const onEndChange = (v) => {
+    const [s2, e2] = ensureOrder(start, v)
+    setStart(s2); setEnd(e2)
+  }
+  const changeDuration = (min) => {
+    setDuration(min)
+    if (start) setEnd(addMinutes(start, min))
+  }
 
   const loadAvailableRooms = async ()=>{
     setLoading(true)
@@ -75,10 +113,24 @@ export default function Bookings(){
   return (
     <div className="page-bookings">
       <div className="card">
-        <h2>Choisir une salle disponible</h2>
-        <div className="row" style={{marginBottom:8}}>
-          <input type="datetime-local" value={start} onChange={e=>setStart(e.target.value)} />
-          <input type="datetime-local" value={end} onChange={e=>setEnd(e.target.value)} />
+        <div className="section-head">
+          <h2>Choisir une salle disponible</h2>
+          <span className="section-desc">Sélectionnez une fenêtre temporelle puis choisissez une salle</span>
+        </div>
+        <div className="date-bar" style={{marginBottom:8}}>
+          <button className="nudge" onClick={()=>onStartChange(addMinutes(start, -15))}>-15m</button>
+          <input className="input grow" type="datetime-local" value={start} onChange={e=>onStartChange(e.target.value)} />
+          <button className="nudge" onClick={()=>onStartChange(addMinutes(start, 15))}>+15m</button>
+          <span className="muted">durée</span>
+          <select className="input" value={duration} onChange={e=>changeDuration(Number(e.target.value))}>
+            <option value={30}>30m</option>
+            <option value={60}>1h</option>
+            <option value={90}>1h30</option>
+            <option value={120}>2h</option>
+          </select>
+          <button className="nudge" onClick={()=>onEndChange(addMinutes(end, -15))}>-15m</button>
+          <input className="input grow" type="datetime-local" value={end} onChange={e=>onEndChange(e.target.value)} />
+          <button className="nudge" onClick={()=>onEndChange(addMinutes(end, 15))}>+15m</button>
           <button className="secondary" onClick={loadAvailableRooms} disabled={loading}>{loading? 'Chargement…':'Voir disponibles'}</button>
           <button className="secondary" onClick={presetNextHour}>Prochaine heure</button>
           <button className="secondary" onClick={presetMorning}>Matinée</button>
@@ -109,7 +161,10 @@ export default function Bookings(){
       </div>
 
       <div className="card">
-        <h2>Créer une réservation (auth requis)</h2>
+        <div className="section-head">
+          <h2>Créer une réservation (auth requis)</h2>
+          <span className="section-desc">Vous pouvez aussi renseigner manuellement l’ID de salle</span>
+        </div>
         <form onSubmit={createBooking} className="form">
           <input placeholder="room_id" type="number" value={roomId} onChange={e=>setRoomId(e.target.value)} required />
           <input type="datetime-local" value={start} onChange={e=>setStart(e.target.value)} required />
@@ -120,7 +175,10 @@ export default function Bookings(){
       </div>
 
       <div className="card">
-        <h2>Mes réservations</h2>
+        <div className="section-head">
+          <h2>Mes réservations</h2>
+          <span className="section-desc">Liste de vos réservations actuelles</span>
+        </div>
         <div className="row"><button onClick={listMine}>Rafraîchir</button></div>
         <div className="grid grid-bookings">
           {mine.map(b=> (

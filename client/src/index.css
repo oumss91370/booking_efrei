@@ -17,9 +17,18 @@ body{ margin:0; font-family:Inter, ui-sans-serif, system-ui, -apple-system, Sego
 .item{border:1px solid var(--border); padding:10px; border-radius:10px; display:flex; justify-content:space-between; align-items:center}
 .muted{color:var(--muted); font-size:12px}
 .form input, .form select, .form textarea{padding:10px 12px; border:1px solid var(--border); border-radius:8px; min-width:0}
-.form button{padding:10px 14px; border-radius:8px; background:var(--primary); color:white; border:1px solid var(--primary); cursor:pointer}
-.form button:hover{background:var(--primary-600); border-color:var(--primary-600)}
+/* Buttons */
+button{padding:10px 14px; border-radius:8px; background:var(--primary); color:white; border:1px solid var(--primary); cursor:pointer}
+button:hover{background:var(--primary-600); border-color:var(--primary-600)}
+.form button{padding:10px 14px}
 button.danger{background:var(--danger); border-color:var(--danger); color:white}
+.secondary{background:white; color:var(--text); border:1px solid var(--border)}
+.secondary:hover{background:#f8fafc}
+
+/* Card headings */
+.card h2{margin-top:0; margin-bottom:8px; font-size:18px}
+.section-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:8px}
+.section-desc{color:var(--muted); font-size:12px}
 
 /* Grids */
 .grid{display:grid; gap:12px}
@@ -43,3 +52,10 @@ button.danger{background:var(--danger); border-color:var(--danger); color:white}
 /* Badges */
 .badges{display:flex; gap:6px; flex-wrap:wrap}
 .badge{display:inline-block; padding:4px 8px; border:1px solid var(--border); border-radius:999px; background:#f8fafc; font-size:12px; color:var(--muted)}
+
+/* Date UX */
+.date-bar{display:flex; gap:8px; flex-wrap:wrap; align-items:center; background:#f8fafc; border:1px solid var(--border); border-radius:10px; padding:10px}
+.date-bar .input{padding:8px 10px; border:1px solid var(--border); border-radius:8px}
+.nudge{padding:8px 10px; border:1px solid var(--border); background:white; border-radius:8px; cursor:pointer}
+.nudge:hover{background:#f1f5f9}
+.grow{flex:1 1 auto; min-width:220px}
