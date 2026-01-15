@@ -11,6 +11,8 @@ async function getToken() {
   return login.body.token;
 }
 
+const createdRoomIds = [];
+
 describe('Rooms integration', () => {
   it('lists rooms', async () => {
     const res = await request(app).get('/api/rooms');
@@ -41,10 +43,19 @@ describe('Rooms integration', () => {
     expect([200,201]).toContain(res.status);
     expect(res.body).toHaveProperty('id');
     expect(res.body.name).toBe(name);
+    if (res.body?.id) createdRoomIds.push(res.body.id);
   });
 });
 
 afterAll(async () => {
+  // Cleanup created rooms to keep DB clean for subsequent runs
+  if (createdRoomIds.length) {
+    try {
+      // Delete dependent bookings first if any
+      await sql`DELETE FROM bookings WHERE room_id = ANY(${sql.array(createdRoomIds)})`;
+      await sql`DELETE FROM rooms WHERE id = ANY(${sql.array(createdRoomIds)})`;
+    } catch (_) {}
+  }
   if (sql && typeof sql.end === 'function') {
     try { await sql.end({ timeout: 1 }); } catch (_) {}
   }
