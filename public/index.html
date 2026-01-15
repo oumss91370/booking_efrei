@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EasyBooking - Demo Front</title>
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; margin: 20px; }
+    h2 { margin-top: 28px; }
+    form { margin: 8px 0; display: grid; gap: 8px; max-width: 480px; }
+    input, button, select { padding: 8px; font-size: 14px; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .card { border: 1px solid #ddd; border-radius: 8px; padding: 12px; margin: 8px 0; }
+    .ok { color: #0a0; }
+    .err { color: #a00; white-space: pre-wrap; }
+    code { background: #f4f4f4; padding: 2px 4px; border-radius: 4px; }
+    .list { display: grid; gap: 6px; }
+    .item { border: 1px solid #eee; padding: 8px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
+    .muted { color: #666; font-size: 12px; }
+    /* Tabs */
+    .tabs { display: flex; gap: 8px; border-bottom: 1px solid #e5e7eb; margin-bottom: 16px; }
+    .tab { padding: 8px 12px; border: 1px solid transparent; border-radius: 8px 8px 0 0; cursor: pointer; }
+    .tab.active { border-color: #e5e7eb; border-bottom-color: white; background: white; }
+    main { background: white; border: 1px solid #e5e7eb; border-radius: 0 8px 8px 8px; padding: 16px; }
+    .page { display: none; }
+    .page.active { display: block; }
+  </style>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header>
+    <h1>EasyBooking</h1>
+    <nav class="tabs">
+      <a href="#auth" data-tab="auth" class="tab">Authentification</a>
+      <a href="#rooms" data-tab="rooms" class="tab">Salles</a>
+      <a href="#bookings" data-tab="bookings" class="tab">Réservations</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="page-auth" class="page">
+      <div class="card">
+        <h2>Authentification</h2>
+        <form id="form-register">
+          <strong>Inscription</strong>
+          <input id="reg-email" type="email" placeholder="email" required />
+          <input id="reg-username" type="text" placeholder="username" required />
+          <input id="reg-password" type="password" placeholder="password" required />
+          <button>Créer le compte</button>
+          <div id="reg-msg"></div>
+        </form>
+
+        <form id="form-login">
+          <strong>Connexion</strong>
+          <input id="login-email" type="email" placeholder="email" required />
+          <input id="login-password" type="password" placeholder="password" required />
+          <button>Se connecter</button>
+          <div id="login-msg"></div>
+        </form>
+
+        <div class="row">
+          <button id="btn-logout">Se déconnecter</button>
+          <span id="auth-state"></span>
+          <span id="user-email" class="muted"></span>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-rooms" class="page">
+      <div class="card">
+        <h2>Salles</h2>
+        <div class="row">
+          <button id="btn-rooms">Lister les salles</button>
+          <button id="btn-rooms-available">Salles disponibles</button>
+        </div>
+        <div class="row">
+          <input id="avail-start" type="datetime-local" />
+          <input id="avail-end" type="datetime-local" />
+          <span class="muted">Si vide: prochaine heure à +2h.</span>
+        </div>
+        <pre id="rooms-out"></pre>
+        <div id="rooms-list" class="list"></div>
+
+        <form id="form-create-room">
+          <strong>Créer une salle (auth requis)</strong>
+          <input id="room-name" type="text" placeholder="Nom de la salle" required />
+          <input id="room-capacity" type="number" placeholder="Capacité" required />
+          <input id="room-amenities" type="text" placeholder="Équipements (séparés par des virgules)" />
+          <button>Créer la salle</button>
+          <div id="room-msg"></div>
+        </form>
+      </div>
+    </section>
+
+    <section id="page-bookings" class="page">
+      <div class="card">
+        <h2>Réservations</h2>
+        <form id="form-create-booking">
+          <strong>Créer une réservation (auth requis)</strong>
+          <input id="booking-room-id" type="number" placeholder="room_id" required />
+          <input id="booking-start" type="datetime-local" required />
+          <input id="booking-end" type="datetime-local" required />
+          <button>Réserver</button>
+          <div id="booking-msg"></div>
+        </form>
+        <div class="row">
+          <button id="btn-mine">Mes réservations</button>
+        </div>
+        <div id="bookings-list" class="list"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
