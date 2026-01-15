@@ -1,0 +1,32 @@
+{
+    "name":  "easy-booking",
+    "version":  "1.0.0",
+    "description":  "Application de r?servation de chambres",
+    "main":  "src/server.js",
+    "keywords":  [
+
+                 ],
+    "author":  "",
+    "license":  "ISC",
+    "dependencies":  {
+                         "@supabase/supabase-js":  "^2.90.1",
+                         "bcryptjs":  "^3.0.3",
+                         "cors":  "^2.8.5",
+                         "dotenv":  "^17.2.3",
+                         "express":  "^5.2.1",
+                         "jsonwebtoken":  "^9.0.3",
+                         "postgres":  "^3.4.8"
+                     },
+    "devDependencies":  {
+                            "jest":  "^30.2.0",
+                            "nodemon":  "^3.1.11",
+                            "supertest":  "^7.2.2"
+                        },
+    "scripts":  {
+                    "start":  "node src/server.js",
+                    "test:watch":  "jest --watch",
+                    "seed":  "node scripts/seed_rooms.js",
+                    "dev":  "nodemon src/server.js",
+                    "test":  "jest --coverage"
+                }
+}
